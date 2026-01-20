@@ -13,6 +13,12 @@ enum Theme {
     static let secondaryText = Color(UIColor.secondaryLabel)
     static let destructive = Color.red
 
+    // MARK: - State Views Colors (for LoadingView, NoInternetView, etc.)
+    static let primaryColor = Color.orange
+    static let backgroundColor = Color(UIColor.systemBackground)
+    static let textPrimary = Color(UIColor.label)
+    static let textSecondary = Color(UIColor.secondaryLabel)
+
     // MARK: - Gradients
     static let sunriseGradient = LinearGradient(
         colors: [Color.orange, Color.yellow],
