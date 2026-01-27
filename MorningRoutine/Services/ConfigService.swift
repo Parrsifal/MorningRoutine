@@ -127,7 +127,6 @@ class ConfigService: ObservableObject {
         let jsonData = try JSONSerialization.data(withJSONObject: body)
         request.httpBody = jsonData
 
-        print("[ConfigService] Sending request with body: \(body)")
 
         let (data, response) = try await URLSession.shared.data(for: request)
 
@@ -135,7 +134,6 @@ class ConfigService: ObservableObject {
             throw ConfigError.invalidResponse
         }
 
-        print("[ConfigService] Response status: \(httpResponse.statusCode)")
 
         // Parse response
         let configResponse = try JSONDecoder().decode(ConfigResponse.self, from: data)
@@ -170,7 +168,6 @@ class ConfigService: ObservableObject {
             return response.url
         } catch {
             // On error, fallback to stored URL if available (even if expired)
-            print("[ConfigService] Failed to get fresh URL: \(error), using cached URL")
             if let stored = storedConfig {
                 currentURL = stored.url
                 return stored.url
@@ -190,9 +187,7 @@ class ConfigService: ObservableObject {
                     deepLinkData: AppsFlyerService.shared.deepLinkData,
                     pushToken: token
                 )
-                print("[ConfigService] Push token updated successfully")
             } catch {
-                print("[ConfigService] Failed to update push token: \(error)")
             }
         }
     }

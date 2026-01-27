@@ -20,7 +20,6 @@ class NetworkMonitor: ObservableObject {
             }
         }
         monitor.start(queue: queue)
-        print("[NetworkMonitor] Started")
     }
 
     deinit {

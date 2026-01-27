@@ -40,7 +40,6 @@ class WebViewCoordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
 
         // Handle payment apps
         if urlString.hasPrefix("paytmmp://") || urlString.hasPrefix("phonepe://") || urlString.hasPrefix("bankid://") {
-            print("[WebView] Opening payment app: \(urlString)")
             UIApplication.shared.open(url)
             decisionHandler(.cancel)
             return
@@ -95,7 +94,6 @@ class WebViewCoordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         // Handle ERR_TOO_MANY_REDIRECTS
         if nsError.domain == NSURLErrorDomain && nsError.code == NSURLErrorHTTPTooManyRedirects {
             if let url = lastRedirectURL {
-                print("[WebView] Too many redirects - reloading: \(url)")
                 let request = URLRequest(url: url)
                 webView.load(request)
                 return
@@ -107,7 +105,6 @@ class WebViewCoordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
             return
         }
 
-        print("[WebView] Error: \(error.localizedDescription)")
         parent.onError?(error)
     }
 
@@ -316,7 +313,6 @@ struct FullscreenWebView: View {
                         webView: webViewManager.webView,
                         onPageFinished: { _ in },
                         onError: { error in
-                            print("[WebView] Error: \(error)")
                         }
                     )
                 }

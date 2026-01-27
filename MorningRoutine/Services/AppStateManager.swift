@@ -61,11 +61,9 @@ class AppStateManager: ObservableObject {
 
     // MARK: - Initialize App
     func initializeApp() async {
-        print("[AppStateManager] Starting initialization...")
 
         // TEST MODE: Skip all logic and open WebView directly
         if let testURL = testWebViewURL {
-            print("[AppStateManager] TEST MODE - Opening: \(testURL)")
             currentState = .webView(url: testURL)
             isInitialized = true
             return
@@ -75,7 +73,6 @@ class AppStateManager: ObservableObject {
 
         // Check if mode already determined
         if savedAppMode != .undetermined {
-            print("[AppStateManager] Mode already determined: \(savedAppMode)")
             await handleSubsequentLaunch()
             return
         }
@@ -86,11 +83,9 @@ class AppStateManager: ObservableObject {
 
     // MARK: - First Launch
     private func handleFirstLaunch() async {
-        print("[AppStateManager] First launch flow...")
 
         // Check internet connection
         guard networkMonitor.isConnected else {
-            print("[AppStateManager] No internet on first launch")
             currentState = .noInternet
             return
         }
@@ -114,7 +109,6 @@ class AppStateManager: ObservableObject {
         let conversionReceived = await waitForConversionData(timeout: AppConfiguration.Timeouts.conversionDataTimeout)
 
         if !conversionReceived {
-            print("[AppStateManager] Conversion data timeout - going native")
             savedAppMode = .native
             currentState = .native
             return
@@ -131,7 +125,6 @@ class AppStateManager: ObservableObject {
             )
 
             if response.ok, let url = response.url {
-                print("[AppStateManager] Config success - WebView mode")
                 savedAppMode = .webView
                 configService.isWebViewMode = true
                 configService.isModeDetermined = true
@@ -143,13 +136,11 @@ class AppStateManager: ObservableObject {
                     currentState = .webView(url: url)
                 }
             } else {
-                print("[AppStateManager] Config returned false - Native mode")
                 savedAppMode = .native
                 configService.isModeDetermined = true
                 currentState = .native
             }
         } catch {
-            print("[AppStateManager] Config error: \(error) - Native mode")
             savedAppMode = .native
             configService.isModeDetermined = true
             currentState = .native
@@ -160,7 +151,6 @@ class AppStateManager: ObservableObject {
 
     // MARK: - Subsequent Launch
     private func handleSubsequentLaunch() async {
-        print("[AppStateManager] Subsequent launch flow...")
 
         switch savedAppMode {
         case .webView:
@@ -178,7 +168,6 @@ class AppStateManager: ObservableObject {
     private func handleWebViewMode() async {
         // Check internet - show no internet screen even if we have cached URL
         guard networkMonitor.isConnected else {
-            print("[AppStateManager] No internet on subsequent launch - showing no internet screen")
 
             // Save cached URL for when connection restores
             cachedURLForReconnect = configService.storedConfig?.url
@@ -232,14 +221,12 @@ class AppStateManager: ObservableObject {
         networkObservationTask = Task { [weak self] in
             guard let self = self else { return }
 
-            print("[AppStateManager] Started network observation")
 
             // Poll for network changes
             while !Task.isCancelled {
                 try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
 
                 if self.networkMonitor.isConnected {
-                    print("[AppStateManager] Network restored!")
 
                     // Network restored - proceed to WebView
                     await MainActor.run {
@@ -265,7 +252,6 @@ class AppStateManager: ObservableObject {
         guard savedAppMode == .webView else { return }
 
         if case .noInternet = currentState {
-            print("[AppStateManager] Restoring WebView after network reconnection")
             await handleWebViewMode()
         }
     }
@@ -287,7 +273,6 @@ class AppStateManager: ObservableObject {
     // MARK: - Actions
     func onPushPermissionAccepted() async {
         let granted = await pushService.requestPermission()
-        print("[AppStateManager] Push permission granted: \(granted)")
 
         // Proceed to WebView
         if let url = await configService.getURLForWebView() {

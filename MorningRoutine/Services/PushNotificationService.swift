@@ -68,7 +68,6 @@ class PushNotificationService: NSObject, ObservableObject {
         // Check current authorization status
         checkAuthorizationStatus()
 
-        print("[PushService] Configured")
     }
 
     // MARK: - Check Authorization Status
@@ -99,10 +98,8 @@ class PushNotificationService: NSObject, ObservableObject {
                 }
             }
 
-            print("[PushService] Permission granted: \(granted)")
             return granted
         } catch {
-            print("[PushService] Permission request error: \(error)")
             return false
         }
     }
@@ -110,7 +107,6 @@ class PushNotificationService: NSObject, ObservableObject {
     // MARK: - Skip Permission
     func skipPermission() {
         lastSkippedDate = Date()
-        print("[PushService] Permission skipped")
     }
 
     // MARK: - Register for Remote Notifications
@@ -120,7 +116,6 @@ class PushNotificationService: NSObject, ObservableObject {
 
     // MARK: - Handle Notification
     func handleNotification(userInfo: [AnyHashable: Any]) {
-        print("[PushService] Received notification: \(userInfo)")
 
         // Check for URL in data payload
         if let data = userInfo["data"] as? [String: Any],
@@ -145,7 +140,6 @@ class PushNotificationService: NSObject, ObservableObject {
 // MARK: - MessagingDelegate
 extension PushNotificationService: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        print("[PushService] FCM token: \(fcmToken ?? "nil")")
 
         guard let token = fcmToken else { return }
 
@@ -165,7 +159,6 @@ extension PushNotificationService: UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         let userInfo = notification.request.content.userInfo
-        print("[PushService] Foreground notification: \(userInfo)")
 
         // Show notification even when app is in foreground
         completionHandler([.banner, .sound, .badge])
@@ -178,7 +171,6 @@ extension PushNotificationService: UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
         let userInfo = response.notification.request.content.userInfo
-        print("[PushService] Notification tapped: \(userInfo)")
 
         handleNotification(userInfo: userInfo)
 

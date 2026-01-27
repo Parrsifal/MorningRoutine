@@ -20,11 +20,9 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         // Configure Firebase
         FirebaseApp.configure()
-        print("[AppDelegate] Firebase configured")
 
         // Configure Push Notifications
         PushNotificationService.shared.configure()
-        print("[AppDelegate] Push service configured")
 
         return true
     }
@@ -40,16 +38,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         // Register for AppsFlyer uninstall tracking
         AppsFlyerLib.shared().registerUninstall(deviceToken)
-
-        let tokenString = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
-        print("[AppDelegate] APNS Token: \(tokenString)")
     }
 
     func application(
         _ application: UIApplication,
         didFailToRegisterForRemoteNotificationsWithError error: Error
     ) {
-        print("[AppDelegate] Failed to register for remote notifications: \(error)")
     }
 
     func application(
@@ -57,7 +51,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         didReceiveRemoteNotification userInfo: [AnyHashable: Any],
         fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
     ) {
-        print("[AppDelegate] Received remote notification: \(userInfo)")
         PushNotificationService.shared.handleNotification(userInfo: userInfo)
         completionHandler(.newData)
     }

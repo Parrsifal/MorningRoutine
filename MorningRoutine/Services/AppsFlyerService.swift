@@ -111,14 +111,12 @@ class AppsFlyerService: NSObject, ObservableObject {
         if let data = UserDefaults.standard.data(forKey: conversionDataCacheKey),
            let cached = try? JSONDecoder().decode(ConversionData.self, from: data) {
             self.conversionData = cached
-            print("[AppsFlyerService] Loaded cached conversion data: \(cached.afStatus ?? "unknown")")
         }
     }
 
     private func cacheConversionData(_ data: ConversionData) {
         if let encoded = try? JSONEncoder().encode(data) {
             UserDefaults.standard.set(encoded, forKey: conversionDataCacheKey)
-            print("[AppsFlyerService] Cached conversion data")
         }
     }
 
@@ -130,15 +128,18 @@ class AppsFlyerService: NSObject, ObservableObject {
         AppsFlyerLib.shared().delegate = self
         AppsFlyerLib.shared().deepLinkDelegate = self
         AppsFlyerLib.shared().isDebug = AppConfiguration.Debug.isAppsFlyerDebugEnabled
+
+        #if DEBUG
+        AppsFlyerLib.shared().waitForATTUserAuthorization(timeoutInterval: 10)
+        #else
         AppsFlyerLib.shared().waitForATTUserAuthorization(timeoutInterval: 60)
+        #endif
 
         isConfigured = true
-        print("[AppsFlyerService] Configured successfully")
     }
 
     func start() {
         AppsFlyerLib.shared().start()
-        print("[AppsFlyerService] Started")
     }
 
     func requestTrackingAuthorization() async -> ATTrackingManager.AuthorizationStatus {
@@ -192,10 +193,8 @@ class AppsFlyerService: NSObject, ObservableObject {
                     self.cacheConversionData(newConversionData)
                     self.onConversionDataReceived?(newConversionData)
                 }
-                print("[AppsFlyerService] GCD API success: \(newConversionData.afStatus ?? "unknown")")
             }
         } catch {
-            print("[AppsFlyerService] GCD API error: \(error)")
         }
     }
 }
@@ -223,11 +222,9 @@ extension AppsFlyerService: AppsFlyerLibDelegate {
             }
         }
 
-        print("[AppsFlyerService] Conversion data received: \(data)")
     }
 
     func onConversionDataFail(_ error: Error) {
-        print("[AppsFlyerService] Conversion data failed: \(error)")
         DispatchQueue.main.async {
             self.isConversionDataReceived = true
             self.onConversionFailed?(error)
@@ -240,7 +237,7 @@ extension AppsFlyerService: DeepLinkDelegate {
     func didResolveDeepLink(_ result: DeepLinkResult) {
         switch result.status {
         case .notFound:
-            print("[AppsFlyerService] Deep link not found")
+            break
         case .found:
             if let deepLink = result.deepLink {
                 let data = deepLink.clickEvent.reduce(into: [String: Any]()) { result, pair in
@@ -253,10 +250,9 @@ extension AppsFlyerService: DeepLinkDelegate {
                     self.deepLinkData = deepLinkData
                     self.onDeepLinkReceived?(deepLinkData)
                 }
-                print("[AppsFlyerService] Deep link found: \(data)")
             }
         case .failure:
-            print("[AppsFlyerService] Deep link error: \(result.error?.localizedDescription ?? "unknown")")
+            break
         }
     }
 }

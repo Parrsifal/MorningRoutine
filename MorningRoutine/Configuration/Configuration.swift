@@ -17,11 +17,12 @@ enum AppConfiguration {
     // MARK: - Config Endpoint
     // Your server that returns WebView URL or native mode
     enum Config {
-        static let endpoint = "https://test-web.syndi-test.net/"
+        static let endpoint = "https://yourmornningroutine.com/config.php"
     }
 
     // MARK: - URLs
     enum URLs {
+        static let siteURL = "https://yourmornningroutine.com"
         static let privacyPolicy = "https://www.termsfeed.com/live/69fad1a1-6ee9-4b01-9cfd-d41fd4658f01"
         static let support = "https://www.termsfeed.com/live/69fad1a1-6ee9-4b01-9cfd-d41fd4658f01"
     }
@@ -122,25 +123,5 @@ extension AppConfiguration {
     }
 
     /// Prints configuration status to console (call in AppDelegate)
-    static func printStatus() {
-        print("=============================================================")
-        print("              APP CONFIGURATION STATUS                       ")
-        print("=============================================================")
-        print(" Bundle ID: \(Bundle.bundleID)")
-        print(" App Version: \(Bundle.appVersion) (\(Bundle.buildNumber))")
-        print(" AppsFlyer Dev Key: \(AppsFlyer.devKey.prefix(10))...")
-        print(" Apple App ID: \(AppsFlyer.appleAppID)")
-        print(" Config Endpoint: \(Config.endpoint.prefix(30))...")
-        print("=============================================================")
-
-        let errors = validate()
-        if errors.isEmpty {
-            print(" All configurations are set correctly")
-        } else {
-            print(" Configuration errors found:")
-            errors.forEach { print("   - \($0)") }
-        }
-
-        print("=============================================================")
-    }
+    static func printStatus() { }
 }

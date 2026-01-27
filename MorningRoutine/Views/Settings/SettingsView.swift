@@ -51,6 +51,33 @@ struct SettingsView: View {
                             title: "Build",
                             value: buildNumber
                         )
+
+                        if let url = URL(string: AppConfiguration.URLs.privacyPolicy) {
+                            Link(destination: url) {
+                                HStack(spacing: Theme.paddingMedium) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Theme.accent.opacity(0.15))
+                                            .frame(width: 36, height: 36)
+
+                                        Image(systemName: "hand.raised.fill")
+                                            .font(.system(size: 16))
+                                            .foregroundColor(Theme.accent)
+                                    }
+
+                                    Text("Privacy Policy")
+                                        .font(.system(size: Theme.fontSizeMedium, weight: .medium))
+                                        .foregroundColor(Theme.text)
+
+                                    Spacer()
+
+                                    Image(systemName: "arrow.up.right")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(Theme.secondaryText)
+                                }
+                                .padding(Theme.paddingMedium)
+                            }
+                        }
                     }
 
                     // Footer
