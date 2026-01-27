@@ -8,7 +8,9 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.morningRoutine
+        bundle_identifier:
+          - com.morningRoutine
+          - com.morningRoutine.Notification
       vars:
         XCODE_PROJECT: "MorningRoutine.xcodeproj"
         XCODE_SCHEME: "MorningRoutine"
