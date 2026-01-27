@@ -8,34 +8,55 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier:
-          - com.morningRoutine
-          - com.morningRoutine.Notification
+        bundle_identifier: com.morningRoutine
       vars:
         XCODE_PROJECT: "MorningRoutine.xcodeproj"
         XCODE_SCHEME: "MorningRoutine"
-        APP_STORE_APP_ID: 6757846912
+        APP_STORE_APP_ID: "6757846912"
+        EXTENSION_BUNDLE_ID: "com.morningRoutine.Notification"
       xcode: 16.2
     scripts:
-      - name: Set up code signing settings on Xcode project
+      - name: Set build number
+        script: |
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APP_ID" || echo "0")
+          BUILD_NUMBER=$((LATEST_BUILD_NUMBER + 1))
+          cd $CM_BUILD_DIR
+          agvtool new-version -all $BUILD_NUMBER
+          echo "Build number set to: $BUILD_NUMBER"
+      - name: Set up code signing
         script: |
           xcode-project use-profiles
-      - name: Increment build number
+        working_directory: $CM_BUILD_DIR
+      - name: Fetch signing certificates and profiles
         script: |
-          cd $CM_BUILD_DIR
-          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APP_ID" || echo "0")
-          echo "Latest build number from TestFlight: $LATEST_BUILD_NUMBER"
-          NEW_BUILD_NUMBER=$(($LATEST_BUILD_NUMBER + 1))
-          echo "Setting new build number: $NEW_BUILD_NUMBER"
-          agvtool new-version -all $NEW_BUILD_NUMBER
+          app-store-connect fetch-signing-files com.morningRoutine \
+            --type IOS_APP_STORE \
+            --create
+          app-store-connect fetch-signing-files "$EXTENSION_BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain initialize
+          keychain add-certificates
+          xcode-project use-profiles
+        working_directory: $CM_BUILD_DIR
       - name: Build ipa for distribution
         script: |
-          xcode-project build-ipa \
-            --project "$XCODE_PROJECT" \
-            --scheme "$XCODE_SCHEME"
+          xcodebuild -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -sdk iphoneos \
+            -configuration Release \
+            -archivePath build/MorningRoutine.xcarchive \
+            clean archive \
+            CODE_SIGN_STYLE=Manual
+          xcodebuild -exportArchive \
+            -archivePath build/MorningRoutine.xcarchive \
+            -exportOptionsPlist ~/export_options.plist \
+            -exportPath build/ios/ipa
+        working_directory: $CM_BUILD_DIR
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+      - build/*.xcarchive
       - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
     publishing:
       email:
