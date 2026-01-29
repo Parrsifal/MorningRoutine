@@ -146,6 +146,9 @@ extension PushNotificationService: MessagingDelegate {
         DispatchQueue.main.async {
             self.fcmToken = token
             UserDefaults.standard.set(token, forKey: self.fcmTokenKey)
+
+            // Notify config service about token update
+            ConfigService.shared.updatePushToken(token)
         }
     }
 }

@@ -93,6 +93,7 @@ class AppStateManager: ObservableObject {
         loadingProgress = "Loading user's data..."
 
         // 1. Request ATT FIRST (before AppsFlyer)
+        try? await Task.sleep(nanoseconds: 500_000_000)
         _ = await appsFlyerService.requestTrackingAuthorization()
 
         loadingProgress = "Loading user's data..."
