@@ -14,6 +14,9 @@ workflows:
         XCODE_SCHEME: "MorningRoutine"
         APP_STORE_APP_ID: "6757846912"
         EXTENSION_BUNDLE_ID: "com.morningRoutine.Notification"
+        # ⚠️ ПРОВЕРЬ эти значения! Они должны быть из твоего App Store Connect API Key
+        APP_STORE_CONNECT_KEY_IDENTIFIER: "22U4SFDZ2F"
+        APP_STORE_CONNECT_ISSUER_ID: "a5b4e87a-8719-4c7e-8694-1e3e63a152aa"
       xcode: 16.2
     scripts:
       - name: Set build number
@@ -52,6 +55,21 @@ workflows:
             -archivePath build/MorningRoutine.xcarchive \
             -exportOptionsPlist ~/export_options.plist \
             -exportPath build/ios/ipa
+        working_directory: $CM_BUILD_DIR
+
+      - name: Install fastlane
+        script: |
+          gem install fastlane
+
+      - name: Install bundle dependencies
+        script: |
+          cd $CM_BUILD_DIR
+          bundle install
+
+      - name: Upload metadata and screenshots
+        script: |
+          cd $CM_BUILD_DIR
+          bundle exec fastlane upload_metadata
         working_directory: $CM_BUILD_DIR
     artifacts:
       - build/ios/ipa/*.ipa
